@@ -34,32 +34,28 @@ RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysq
 # Final runtime image
 FROM ubuntu:23.04
 
-# Install necessary runtime dependencies
-RUN dpkg --add-architecture i386 \
-    && apt-get -qq update \
-    && apt-get -qq install -y \
-        libstdc++5:i386 \
-        netcat-openbsd \
-    && apt-get -qq clean
-
 ARG mysql_variant="1"
 ARG sqlite_enabled="1"
-
-RUN if [ "$mysql_variant" != "0" ]; then apt-get -q install -y libmysqlclient-dev:i386; fi \
-    && if [ "$sqlite_enabled" != "0" ]; then apt-get -q install -y libsqlite3-dev:i386; fi
-
-# Copy necessary files from the builder image
-COPY --from=builder /cod2/libcod.so /cod2/libcod.so
-
-# Copy cod2 server file to the runtime image
 ARG cod2_patch="0"
-COPY ./cod2_lnxded/1_${cod2_patch} /cod2/cod2_lnxded
 
-# Set the working directory
+# Define the list of packages to be installed
+RUN PACKAGES="libstdc++5:i386 netcat-openbsd"; \
+    if [ "$mysql_variant" != "0" ]; then \
+        PACKAGES="$PACKAGES libmysqlclient-dev:i386"; \
+    fi; \
+    if [ "$sqlite_enabled" != "0" ]; then \
+        PACKAGES="$PACKAGES libsqlite3-dev:i386"; \
+    fi; \
+    echo "Going to install the following packages: $PACKAGES"; \
+    && dpkg --add-architecture i386 \
+    && apt-get -qq update \
+    && apt-get -qq install -y $PACKAGES \
+    && apt-get -qq clean
+
 WORKDIR /cod2
-
-# Copy healthcheck.sh and entrypoint.sh
-COPY healthcheck.sh entrypoint.sh /cod2/
+COPY --from=builder /cod2/libcod.so libcod.so
+COPY ./cod2_lnxded/1_${cod2_patch} cod2_lnxded
+COPY healthcheck.sh entrypoint.sh ./
 
 # check server info every 5 seconds 7 times (check, if your server can change a map without restarting container)
 HEALTHCHECK --interval=5s --timeout=3s --retries=7 CMD /cod2/healthcheck.sh
