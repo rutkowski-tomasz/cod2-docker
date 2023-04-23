@@ -23,6 +23,7 @@ RUN if [ "$mysql_variant" != "0" ] || [ "$sqlite_enabled" != "0" ]; then apt-get
     && if [ "$mysql_variant" != "0" ]; then apt-get install -y libmysqlclient-dev:i386; fi \
     && if [ "$sqlite_enabled" != "0" ]; then apt-get install -y libsqlite3-dev:i386; fi \
     && if [ "$mysql_variant" != "0" ] || [ "$sqlite_enabled" != "0" ]; then apt-get clean; fi  \
+    && mkdir /cod2 \
     && cd /cod2 \
     && git clone ${libcod_url} \
     && cd zk_libcod \
