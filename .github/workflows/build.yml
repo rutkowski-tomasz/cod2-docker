@@ -23,10 +23,15 @@ jobs:
 
       - name: Build all images and push
         run: |
+          PUSH_VALUE=0
+          if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+            PUSH_VALUE=1
+          fi
+
           ./scripts/build.sh \
             --image_name=rutkowski/cod2 \
             --cod2_patch=${{ matrix.cod2_patch }} \
             --mysql_variant=${{ matrix.mysql_variant }} \
             --speex=${{ matrix.speex }} \
             --enable_unsafe=${{ matrix.enable_unsafe }} \
-            --push=1
+            --push=$PUSH_VALUE
