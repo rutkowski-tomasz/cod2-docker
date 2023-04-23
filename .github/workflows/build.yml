@@ -7,9 +7,9 @@ jobs:
     strategy:
       matrix:
         cod2_patch: [3]
-        mysql_variant: [2]
+        mysql_variant: [1, 2]
         speex: [0]
-        enable_unsafe: [1]
+        enable_unsafe: [0, 1]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -23,7 +23,7 @@ jobs:
 
       - name: Build all images and push
         run: |
-          PUSH_VALUE=1
+          PUSH_VALUE=0
           if [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
             PUSH_VALUE=1
           fi
