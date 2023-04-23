@@ -47,7 +47,7 @@ RUN PACKAGES="libstdc++5:i386 netcat-openbsd"; \
         PACKAGES="$PACKAGES libsqlite3-dev:i386"; \
     fi; \
     echo "Going to install the following packages: $PACKAGES"; \
-    && dpkg --add-architecture i386 \
+    dpkg --add-architecture i386 \
     && apt-get -qq update \
     && apt-get -qq install -y $PACKAGES \
     && apt-get -qq clean
