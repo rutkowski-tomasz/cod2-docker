@@ -3,12 +3,12 @@ FROM ubuntu:23.04 as builder
 
 # cod2 requirements
 RUN dpkg --add-architecture i386 \
-    && apt-get -q update \
-    && apt-get -q install -y \
+    && apt-get -qq update \
+    && apt-get -qq install -y \
         g++-multilib \
         libstdc++5:i386 \
         git \
-    && apt-get -q clean
+    && apt-get -qq clean
 
 # compile libcod
 ARG cod2_patch="0"
@@ -18,7 +18,9 @@ ARG mysql_variant="1"
 ARG sqlite_enabled="1"
 ARG speex="0"
 ARG enable_unsafe="0"
-RUN mkdir /cod2 \
+RUN if [ "$mysql_variant" != "0" ]; then apt-get install -y libmysqlclient-dev:i386; fi \
+    && if [ "$sqlite_enabled" != "0" ]; then apt-get install -y libsqlite3-dev:i386; fi \
+    && mkdir /cod2 \
     && cd /cod2 \
     && git clone ${libcod_url} \
     && cd zk_libcod \
@@ -34,11 +36,11 @@ FROM ubuntu:23.04
 
 # Install necessary runtime dependencies
 RUN dpkg --add-architecture i386 \
-    && apt-get -q update \
-    && apt-get -q install -y \
+    && apt-get -qq update \
+    && apt-get -qq install -y \
         libstdc++5:i386 \
         netcat-openbsd \
-    && apt-get -q clean
+    && apt-get -qq clean
 
 ARG mysql_variant="1"
 ARG sqlite_enabled="1"
