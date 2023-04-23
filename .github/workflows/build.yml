@@ -8,8 +8,10 @@ jobs:
   build:
     strategy:
       matrix:
-        cod_patch: [3]
+        cod2_patch: [3]
         mysql_variant: [1, 2]
+        speex: [0]
+        enable_unsafe: [1]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,4 +24,11 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build all images and push
-        run: ./scripts/build.sh rutkowski/cod2 ${{ matrix.cod_patch }} ${{ matrix.mysql_variant }} PUSH
+        run: |
+          ./scripts/build.sh \
+            --image_name=rutkowski/cod2 \
+            --cod2_patch=${{ matrix.cod2_patch }} \
+            --mysql_variant=${{ matrix.mysql_variant }} \
+            --speex=${{ matrix.speex }} \
+            --enable_unsafe=${{ matrix.enable_unsafe }} \
+            --push=1
