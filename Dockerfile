@@ -3,12 +3,12 @@ FROM ubuntu:23.04 as builder
 
 # cod2 requirements
 RUN dpkg --add-architecture i386 \
-    && apt-get update \
-    && apt-get install -y \
+    && apt-get -q update \
+    && apt-get -q install -y \
         g++-multilib \
         libstdc++5:i386 \
         git \
-    && apt-get clean
+    && apt-get -q clean
 
 # compile libcod
 ARG cod2_patch="0"
@@ -18,11 +18,7 @@ ARG mysql_variant="1"
 ARG sqlite_enabled="1"
 ARG speex="0"
 ARG enable_unsafe="0"
-RUN if [ "$mysql_variant" != "0" ] || [ "$sqlite_enabled" != "0" ]; then apt-get update; fi \
-    && if [ "$mysql_variant" != "0" ]; then apt-get install -y libmysqlclient-dev:i386; fi \
-    && if [ "$sqlite_enabled" != "0" ]; then apt-get install -y libsqlite3-dev:i386; fi \
-    && if [ "$mysql_variant" != "0" ] || [ "$sqlite_enabled" != "0" ]; then apt-get clean; fi  \
-    && mkdir /cod2 \
+RUN mkdir /cod2 \
     && cd /cod2 \
     && git clone ${libcod_url} \
     && cd zk_libcod \
@@ -38,16 +34,17 @@ FROM ubuntu:23.04
 
 # Install necessary runtime dependencies
 RUN dpkg --add-architecture i386 \
-    && apt-get update \
-    && apt-get install -y \
+    && apt-get -q update \
+    && apt-get -q install -y \
+        libstdc++5:i386 \
         netcat-openbsd \
-    && apt-get clean
+    && apt-get -q clean
 
 ARG mysql_variant="1"
 ARG sqlite_enabled="1"
 
-RUN if [ "$mysql_variant" != "0" ]; then apt-get install -y libmysqlclient-dev:i386; fi \
-    && if [ "$sqlite_enabled" != "0" ]; then apt-get install -y libsqlite3-dev:i386; fi
+RUN if [ "$mysql_variant" != "0" ]; then apt-get -q install -y libmysqlclient-dev:i386; fi \
+    && if [ "$sqlite_enabled" != "0" ]; then apt-get -q install -y libsqlite3-dev:i386; fi
 
 # Copy necessary files from the builder image
 COPY --from=builder /cod2/libcod.so /cod2/libcod.so
