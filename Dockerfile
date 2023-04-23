@@ -1,5 +1,5 @@
 # Base image
-FROM ubuntu:18.04 as builder
+FROM ubuntu:23.04 as builder
 
 # cod2 requirements
 RUN dpkg --add-architecture i386 \
@@ -35,7 +35,7 @@ RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysq
     && cp ./bin/libcod2_1_${cod2_patch}.so /cod2/libcod.so
 
 # Final runtime image
-FROM ubuntu:18.04
+FROM ubuntu:23.04
 
 # Install necessary runtime dependencies
 RUN dpkg --add-architecture i386 \
