@@ -8,6 +8,8 @@ RUN dpkg --add-architecture i386 \
         g++-multilib \
         libstdc++5:i386 \
         git \
+        libmysqlclient-dev:i386 \
+        libsqlite3-dev:i386 \
     && apt-get -qq clean
 
 # compile libcod
@@ -15,12 +17,10 @@ ARG cod2_patch="0"
 ARG libcod_url="https://github.com/ibuddieat/zk_libcod"
 ARG libcod_commit="8f9533b"
 ARG mysql_variant="1"
-ARG sqlite_enabled="1"
 ARG speex="0"
 ARG enable_unsafe="0"
-RUN if [ "$mysql_variant" != "0" ]; then apt-get install -y libmysqlclient-dev:i386; fi \
-    && if [ "$sqlite_enabled" != "0" ]; then apt-get install -y libsqlite3-dev:i386; fi \
-    && mkdir /cod2 \
+RUN pwd
+RUN mkdir /cod2 \
     && cd /cod2 \
     && git clone ${libcod_url} \
     && cd zk_libcod \
@@ -33,23 +33,12 @@ RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysq
 
 # Final runtime image
 FROM ubuntu:23.04
-
-ARG mysql_variant="1"
-ARG sqlite_enabled="1"
 ARG cod2_patch="0"
 
 # Define the list of packages to be installed
-RUN PACKAGES="libstdc++5:i386 netcat-openbsd"; \
-    if [ "$mysql_variant" != "0" ]; then \
-        PACKAGES="$PACKAGES libmysqlclient-dev:i386"; \
-    fi; \
-    if [ "$sqlite_enabled" != "0" ]; then \
-        PACKAGES="$PACKAGES libsqlite3-dev:i386"; \
-    fi; \
-    echo "Going to install the following packages: $PACKAGES"; \
-    dpkg --add-architecture i386 \
+RUN dpkg --add-architecture i386 \
     && apt-get -qq update \
-    && apt-get -qq install -y $PACKAGES \
+    && apt-get -qq install -y libstdc++5:i386 netcat-openbsd libmysqlclient-dev:i386 libsqlite3-dev:i386 \
     && apt-get -qq clean
 
 WORKDIR /cod2
