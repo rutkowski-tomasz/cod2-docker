@@ -3,14 +3,12 @@ FROM ubuntu:23.04 as builder
 
 # cod2 requirements
 RUN dpkg --add-architecture i386 \
-    && apt-get -qq update \
-    && apt-get -qq install -y \
-        g++-multilib \
-        libstdc++5:i386 \
+    && apt-get update -q \
+    && apt-get install -q -y \
         git \
         libmysqlclient-dev:i386 \
         libsqlite3-dev:i386 \
-    && apt-get -qq clean
+    && apt-get clean -q
 
 # compile libcod
 ARG cod2_patch="0"
@@ -19,17 +17,14 @@ ARG libcod_commit="8f9533b"
 ARG mysql_variant="1"
 ARG speex="0"
 ARG enable_unsafe="0"
-RUN pwd
-RUN mkdir /cod2 \
-    && cd /cod2 \
-    && git clone ${libcod_url} \
+RUN git clone ${libcod_url} \
     && cd zk_libcod \
     && if [ -z "$libcod_commit" ]; then git checkout ${libcod_commit}; fi
 
-WORKDIR /cod2/zk_libcod/code
+WORKDIR /zk_libcod/code
 COPY ./doit.sh doit.sh
 RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysql_variant} --enable_unsafe=${enable_unsafe} \
-    && cp ./bin/libcod2_1_${cod2_patch}.so /cod2/libcod.so
+    && cp ./bin/libcod2_1_${cod2_patch}.so /libcod.so
 
 # Final runtime image
 FROM ubuntu:23.04
@@ -37,12 +32,12 @@ ARG cod2_patch="0"
 
 # Define the list of packages to be installed
 RUN dpkg --add-architecture i386 \
-    && apt-get -qq update \
-    && apt-get -qq install -y libstdc++5:i386 netcat-openbsd libmysqlclient-dev:i386 libsqlite3-dev:i386 \
-    && apt-get -qq clean
+    && apt-get update -q \
+    && apt-get install -q -y libstdc++5:i386 netcat-openbsd libmysqlclient-dev:i386 libsqlite3-dev:i386 \
+    && apt-get clean -q
 
 WORKDIR /cod2
-COPY --from=builder /cod2/libcod.so libcod.so
+COPY --from=builder /libcod.so libcod.so
 COPY ./cod2_lnxded/1_${cod2_patch} cod2_lnxded
 COPY healthcheck.sh entrypoint.sh ./
 
