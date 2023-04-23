@@ -3,13 +3,13 @@ FROM ubuntu:23.04 as builder
 
 # cod2 requirements
 RUN dpkg --add-architecture i386 \
-    && apt-get update -q \
-    && apt-get install -q -y \
+    && apt-get update -qq \
+    && apt-get install -qq -y \
         g++-multilib \
         git \
         libmysqlclient-dev:i386 \
         libsqlite3-dev:i386 \
-    && apt-get clean -q
+    && apt-get clean -qq
 
 # compile libcod
 ARG cod2_patch="0"
@@ -33,9 +33,9 @@ ARG cod2_patch="0"
 
 # Define the list of packages to be installed
 RUN dpkg --add-architecture i386 \
-    && apt-get update -q \
-    && apt-get install -q -y libstdc++5:i386 netcat-openbsd libmysqlclient-dev:i386 libsqlite3-dev:i386 \
-    && apt-get clean -q
+    && apt-get update -qq \
+    && apt-get install -qq -y libstdc++5:i386 netcat-openbsd libmysqlclient-dev:i386 libsqlite3-dev:i386 \
+    && apt-get clean -qq
 
 WORKDIR /cod2
 COPY --from=builder /libcod.so libcod.so
