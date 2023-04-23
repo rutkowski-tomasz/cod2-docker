@@ -7,7 +7,7 @@ RUN dpkg --add-architecture i386 \
     && apt-get install -y \
         g++-multilib \
         libstdc++5:i386 \
-        netcat \
+        netcat-openbsd \
         git \
     && apt-get clean
 
@@ -42,7 +42,7 @@ RUN dpkg --add-architecture i386 \
     && apt-get update \
     && apt-get install -y \
         libstdc++5:i386 \
-        netcat \
+        netcat-openbsd \
     && apt-get clean
 
 ARG mysql_variant="1"
