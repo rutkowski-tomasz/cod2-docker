@@ -63,7 +63,6 @@ fi
 docker build \
     --build-arg cod2_patch="${cod2_patch}" \
     --build-arg mysql_variant="${mysql_variant}" \
-    --build-arg sqlite_enabled=1 \
     --build-arg speex=${speex} \
     --build-arg enable_unsafe=${enable_unsafe} \
     -t $tag \
