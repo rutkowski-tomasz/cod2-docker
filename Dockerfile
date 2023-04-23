@@ -5,6 +5,7 @@ FROM ubuntu:23.04 as builder
 RUN dpkg --add-architecture i386 \
     && apt-get update -q \
     && apt-get install -q -y \
+        g++-multilib \
         git \
         libmysqlclient-dev:i386 \
         libsqlite3-dev:i386 \
