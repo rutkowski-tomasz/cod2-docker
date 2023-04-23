@@ -19,6 +19,8 @@ ARG libcod_url="https://github.com/ibuddieat/zk_libcod"
 ARG libcod_commit="54c4a8463b165bf22a85dece01e89fcf92315aa4"
 ARG mysql_variant="1"
 ARG sqlite_enabled="1"
+ARG speex="0"
+ARG enable_unsafe="0"
 RUN if [ "$mysql_variant" != "0" ] || [ "$sqlite_enabled" != "0" ]; then apt-get update; fi \
     && if [ "$mysql_variant" != "0" ]; then apt-get install -y libmysqlclient-dev:i386; fi \
     && if [ "$sqlite_enabled" != "0" ]; then apt-get install -y libsqlite3-dev:i386; fi \
@@ -30,7 +32,7 @@ RUN if [ "$mysql_variant" != "0" ] || [ "$sqlite_enabled" != "0" ]; then apt-get
 
 WORKDIR /cod2/zk_libcod/code
 COPY ./doit.sh doit.sh
-RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=0 --mysql_variant=${mysql_variant} \
+RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysql_variant} --enable_unsafe=${enable_unsafe} \
     && cp ./bin/libcod2_1_${cod2_patch}.so /cod2/libcod.so \
     && rm -rf /cod2/libcod
 

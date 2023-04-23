@@ -20,6 +20,9 @@ while [ $# -gt 0 ]; do
         --mysql_variant=*)
         mysql_variant="${1#*=}"
         ;;
+        --enable_unsafe=*)
+        enable_unsafe="${1#*=}"
+        ;;
         --debug=*)
         debug="${1#*=}"
         ;;
@@ -31,7 +34,7 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-for arg_name in "cod2_patch" "speex" "mysql_variant"; do
+for arg_name in "cod2_patch" "speex" "mysql_variant" "enable_unsafe"; do
     arg_value=$(eval echo \$$arg_name)
     if [ -z "$arg_value" ]; then
         echo "Error: Missing argument --${arg_name}"
@@ -60,6 +63,9 @@ elif [ "$mysql_variant" = '2' ]; then
     fi
 fi
 
+if [ "$enable_unsafe" == "1" ]; then
+    sed -i "/#define ENABLE_UNSAFE 0/c\#define ENABLE_UNSAFE 1" config.hpp
+fi
 
 if [ "$speex" == "0" ]; then
     speex_link=""
