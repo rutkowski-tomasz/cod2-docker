@@ -7,7 +7,6 @@ RUN dpkg --add-architecture i386 \
     && apt-get install -y \
         g++-multilib \
         libstdc++5:i386 \
-        netcat-openbsd \
         git \
     && apt-get clean
 
@@ -41,7 +40,6 @@ FROM ubuntu:23.04
 RUN dpkg --add-architecture i386 \
     && apt-get update \
     && apt-get install -y \
-        libstdc++5:i386 \
         netcat-openbsd \
     && apt-get clean
 
