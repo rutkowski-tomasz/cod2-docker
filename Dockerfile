@@ -45,6 +45,12 @@ RUN dpkg --add-architecture i386 \
         netcat \
     && apt-get clean
 
+ARG mysql_variant="1"
+ARG sqlite_enabled="1"
+
+RUN if [ "$mysql_variant" != "0" ]; then apt-get install -y libmysqlclient-dev:i386; fi \
+    && if [ "$sqlite_enabled" != "0" ]; then apt-get install -y libsqlite3-dev:i386; fi
+
 # Copy necessary files from the builder image
 COPY --from=builder /cod2/libcod.so /cod2/libcod.so
 
