@@ -58,10 +58,8 @@ WORKDIR /cod2
 # Copy healthcheck.sh and entrypoint.sh
 COPY healthcheck.sh entrypoint.sh /cod2/
 
-RUN ls -la /cod2
-
 # check server info every 5 seconds 7 times (check, if your server can change a map without restarting container)
-# HEALTHCHECK --interval=5s --timeout=3s --retries=7 CMD /cod2/healthcheck.sh
+HEALTHCHECK --interval=5s --timeout=3s --retries=7 CMD /cod2/healthcheck.sh
 
-# # start script
-# ENTRYPOINT /cod2/entrypoint.sh
+# start script
+ENTRYPOINT /cod2/entrypoint.sh
