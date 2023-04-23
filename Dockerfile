@@ -1,6 +1,7 @@
-FROM ubuntu:18.04
+# Base image
+FROM ubuntu:18.04 as builder
 
-# cod2 requirements 
+# cod2 requirements
 RUN dpkg --add-architecture i386 \
     && apt-get update \
     && apt-get install -y \
@@ -10,13 +11,10 @@ RUN dpkg --add-architecture i386 \
         git \
     && apt-get clean
 
-# copy cod2 server file
-ARG cod2_patch="0"
-COPY ./cod2_lnxded/1_${cod2_patch} /cod2/cod2_lnxded
-
 # compile libcod
+ARG cod2_patch="0"
 ARG libcod_url="https://github.com/ibuddieat/zk_libcod"
-ARG libcod_commit="54c4a8463b165bf22a85dece01e89fcf92315aa4"
+ARG libcod_commit="8f9533b"
 ARG mysql_variant="1"
 ARG sqlite_enabled="1"
 ARG speex="0"
@@ -33,16 +31,36 @@ RUN if [ "$mysql_variant" != "0" ] || [ "$sqlite_enabled" != "0" ]; then apt-get
 WORKDIR /cod2/zk_libcod/code
 COPY ./doit.sh doit.sh
 RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysql_variant} --enable_unsafe=${enable_unsafe} \
-    && cp ./bin/libcod2_1_${cod2_patch}.so /cod2/libcod.so \
-    && rm -rf /cod2/libcod
+    && cp ./bin/libcod2_1_${cod2_patch}.so /cod2/libcod.so
 
-# base dir
+# Final runtime image
+FROM ubuntu:18.04
+
+# Install necessary runtime dependencies
+RUN dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y \
+        libstdc++5:i386 \
+        netcat \
+    && apt-get clean
+
+# Copy necessary files from the builder image
+COPY --from=builder /cod2/libcod.so /cod2/libcod.so
+
+# Copy cod2 server file to the runtime image
+ARG cod2_patch="0"
+COPY ./cod2_lnxded/1_${cod2_patch} /cod2/cod2_lnxded
+
+# Set the working directory
 WORKDIR /cod2
 
+# Copy healthcheck.sh and entrypoint.sh
 COPY healthcheck.sh entrypoint.sh /cod2/
 
-# check server info every 5 seconds 7 times (check, if your server can change a map without restarting container)
-HEALTHCHECK --interval=5s --timeout=3s --retries=7 CMD /cod2/healthcheck.sh
+RUN ls -la /cod2
 
-# start script
-ENTRYPOINT /cod2/entrypoint.sh
+# check server info every 5 seconds 7 times (check, if your server can change a map without restarting container)
+# HEALTHCHECK --interval=5s --timeout=3s --retries=7 CMD /cod2/healthcheck.sh
+
+# # start script
+# ENTRYPOINT /cod2/entrypoint.sh
