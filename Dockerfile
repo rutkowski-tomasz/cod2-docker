@@ -1,7 +1,6 @@
-# Base image
 FROM ubuntu:23.04 as builder
 
-# cod2 requirements
+# libcod requirements
 RUN dpkg --add-architecture i386 \
     && apt-get update -qq \
     && apt-get install -qq -y \
@@ -10,6 +9,37 @@ RUN dpkg --add-architecture i386 \
         libmysqlclient-dev:i386 \
         libsqlite3-dev:i386 \
     && apt-get clean -qq
+
+# speex requirements
+RUN dpkg --add-architecture i386 \
+    && apt-get update -qq \
+    && apt-get install -qq -y \
+        git \
+        libtool \
+        build-essential \
+        automake \
+        g++-multilib \
+        libogg-dev \
+        libogg-dev:i386 \
+    && apt-get clean -qq
+
+# compile speex
+RUN git clone https://gitlab.xiph.org/xiph/speex.git
+WORKDIR /speex
+RUN git checkout tags/Speex-1.1.9 -b 1.1.9
+
+RUN env AUTOMAKE=automake ACLOCAL=aclocal LIBTOOLIZE=libtoolize \
+    ./autogen.sh CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32 --build=x86_64-pc-linux-gnu --host=i686-pc-linux-gnu
+
+RUN make
+RUN make install
+RUN ldconfig
+
+WORKDIR /
+RUN rm -rf /speex
+
+RUN speexdec --version
+RUN speexenc --version
 
 # compile libcod
 ARG cod2_patch="0"
