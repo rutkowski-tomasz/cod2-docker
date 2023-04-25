@@ -99,14 +99,8 @@ RUN ls -la /cod2
 RUN chmod -R +w /zk_libcod && \
     rm -rf /zk_libcod
 
-# Checks below
-RUN apt-get install -y strace
-
 # Switch to user
 USER ${uid}:${gid}
-
-# Add path
-ENV LD_LIBRARY_PATH=/lib:/lib/i386-linux-gnu:/usr/lib:/usr/lib/i386-linux-gnu
 
 # check server info every 5 seconds 7 times (check, if your server can change a map without restarting container)
 HEALTHCHECK --interval=5s --timeout=3s --retries=7 CMD /cod2/healthcheck.sh

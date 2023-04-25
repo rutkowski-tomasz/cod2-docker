@@ -12,14 +12,7 @@ for cmd in ${cmds[@]}; do
     COMMANDS="$COMMANDS $parsed" 
 done
 
-export LD_LIBRARY_PATH=/usr/lib/i386-linux-gnu:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/lib:/lib/i386-linux-gnu:/usr/lib:/usr/lib/i386-linux-gnu
 export LD_PRELOAD=/cod2/libcod.so
 
-ls -la /cod2
-ls -la /cod2/nl
-ls -la /cod2/main
-ls -la /cod2/.callofduty2
-ls -la /cod2/.callofduty2/nl
-ls -la /cod2/.callofduty2/nl/Library
-
-strace -f -o strace.log /cod2/cod2_lnxded "$PARAMS_BEFORE $COMMANDS $PARAMS $PARAMS_AFTER"
+/cod2/cod2_lnxded "$PARAMS_BEFORE $COMMANDS $PARAMS $PARAMS_AFTER"
