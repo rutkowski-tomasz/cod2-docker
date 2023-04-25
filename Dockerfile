@@ -16,7 +16,6 @@ RUN apt-get install -y \
 ARG speex="0"
 RUN if [ "$speex" = "1" ]; then \
         apt-get install -y \
-            sudo \
             git \
             libtool \
             build-essential \
@@ -71,6 +70,8 @@ ARG mysql_variant="1"
 ARG enable_unsafe="0"
 RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysql_variant} --enable_unsafe=${enable_unsafe}
 
+RUN mkdir /cod2
+
 # Set user and group
 ARG user=appuser
 ARG group=appuser
@@ -79,12 +80,21 @@ ARG gid=1002
 RUN groupadd -g ${gid} ${group}
 RUN useradd -u ${uid} -g ${group} -s /bin/sh -d /cod2 ${user}
 
-# cod2 server
-RUN mkdir /cod2
+# cod2 server files
 WORKDIR /cod2
 RUN cp /zk_libcod/code/bin/libcod2_1_${cod2_patch}.so libcod.so
 COPY ./cod2_lnxded/1_${cod2_patch} cod2_lnxded
 COPY healthcheck.sh entrypoint.sh ./
+
+# pre-create volume directories
+RUN mkdir -p /cod2/nl
+VOLUME /cod2/nl
+RUN mkdir -p /cod2/main
+VOLUME /cod2/main
+RUN mkdir -p /cod2/.callofduty2/nl/Library
+VOLUME /cod2/.callofduty2/nl/Library
+
+# change owner
 RUN chown -R ${user}:${group} /cod2
 RUN ls -la /cod2
 
