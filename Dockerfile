@@ -92,7 +92,7 @@ RUN chmod -R +w /zk_libcod && \
 HEALTHCHECK --interval=5s --timeout=3s --retries=7 CMD /cod2/healthcheck.sh
 
 # start script
-USER user
 RUN apt-get install -y strace
+USER user
 
 ENTRYPOINT /cod2/entrypoint.sh
