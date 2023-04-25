@@ -1,8 +1,5 @@
 FROM ubuntu:23.04
 
-# Create non-root user
-RUN useradd -m -d /home/user user
-
 # add architecture
 RUN dpkg --add-architecture i386 \
     && apt-get update >/dev/null
@@ -27,6 +24,7 @@ RUN if [ "$speex" = "1" ]; then \
             g++-multilib \
             libogg-dev \
             libogg-dev:i386 \
+            ffmpeg \
         >/dev/null; \
     fi
 
@@ -36,7 +34,6 @@ RUN apt-get install -y \
         netcat-openbsd \
         libmysqlclient-dev:i386 \
         libsqlite3-dev:i386 \
-        ffmpeg \
         curl \
     >/dev/null
 
@@ -48,10 +45,10 @@ RUN if [ "$speex" = "1" ]; then \
         cd speex && \
         git checkout tags/Speex-1.1.9 -b 1.1.9 && \
         env AUTOMAKE=automake ACLOCAL=aclocal LIBTOOLIZE=libtoolize \
-            ./autogen.sh CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32 --build=x86_64-pc-linux-gnu --host=i686-pc-linux-gnu && \
-        make && \
-        make install && \
-        ldconfig && \
+            ./autogen.sh CFLAGS=-m32 CXXFLAGS=-m32 LDFLAGS=-m32 --build=x86_64-pc-linux-gnu --host=i686-pc-linux-gnu >/dev/null && \
+        make >/dev/null && \
+        make install >/dev/null && \
+        ldconfig >/dev/null && \
         cd / && \
         rm -rf /speex && \
         speexdec --version && \
@@ -74,25 +71,35 @@ ARG mysql_variant="1"
 ARG enable_unsafe="0"
 RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysql_variant} --enable_unsafe=${enable_unsafe}
 
+# Set user and group
+ARG user=appuser
+ARG group=appuser
+ARG uid=1000
+ARG gid=1000
+RUN groupadd -g ${gid} ${group}
+RUN useradd -u ${uid} -g ${group} -s /bin/sh -d /cod2 ${user}
+
 # cod2 server
 RUN mkdir /cod2
 WORKDIR /cod2
 RUN cp /zk_libcod/code/bin/libcod2_1_${cod2_patch}.so libcod.so
-RUN chown -R user:user /cod2
-COPY --chown=user:user ./cod2_lnxded/1_${cod2_patch} cod2_lnxded
-COPY --chown=user:user healthcheck.sh entrypoint.sh ./
-RUN chmod +x healthcheck.sh entrypoint.sh
+COPY ./cod2_lnxded/1_${cod2_patch} cod2_lnxded
+COPY healthcheck.sh entrypoint.sh ./
+RUN chown -R ${user}:${group} /cod2
 RUN ls -la /cod2
 
 # cleanup
 RUN chmod -R +w /zk_libcod && \
     rm -rf /zk_libcod
 
+# Checks below
+RUN apt-get install -y strace
+
+# Switch to user
+USER ${uid}:${gid}
+
 # check server info every 5 seconds 7 times (check, if your server can change a map without restarting container)
 HEALTHCHECK --interval=5s --timeout=3s --retries=7 CMD /cod2/healthcheck.sh
 
 # start script
-RUN apt-get install -y strace
-USER user
-
 ENTRYPOINT /cod2/entrypoint.sh
