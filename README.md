@@ -1,73 +1,71 @@
-# cod2docker
+# 🚢 cod2-docker
 
 Docker image for your Call of Duty 2 server. Libcod included! 
 
-You can find detailed instruction in [Killtube thread](https://killtube.org/showthread.php?3167-CoD2-Setup-CoD2-with-Docker).
+All the tags can be found here: [docker hub](https://hub.docker.com/repository/docker/rutkowski/cod2/general).
 
+# 🪧 Tagging convention
 
-## Supported tags
+`rutkowski:cod2/<version>-server<cod2-version>[-mysql-variant][-speex-enabled][-unsafe-enabled]`
 
-Tags compared from CoD2 version + libcod features + Docker image version. Examples for 0.5 image version: 1.0-voron-0.5, 1.3-0.5
+For example image tagged `rutkowski/cod2:2.5-server1.3-mysqlvoron-speex-unsafe`:
+- is representation of 2.5 version of this repo, each image has libcod support
+- `server1.3` - is built for CoD2 version 1.3
+- `mysqlvoron` - has mysql support added, voron version [link](https://github.com/voron00/libcod)
+- `speex` - has speex support added, required for dynamic loading and playing sounds [link](https://github.com/ibuddieat/zk_libcod)
+- `unsafe` unsafe flag was enabled during libcod build (adding commands for system manipulation) [link](https://github.com/ibuddieat/zk_libcod)
 
-Supported CoD2 versions: 1.0, 1.2, 1.3
+Read more about libcod [here](https://github.com/ibuddieat/zk_libcod)
 
-Default version tag include MySQL and SQLite support both. If you want to use VoroN's MySQL variant (experimental) - use -voron with version.
+# 🚀 Features
 
+This repo was created beacuse it seems that [cod2docker](https://github.com/Lonsofore/cod2docker) is not longer maintained. Also it includes following advancements:
 
-### List of all supported tags
+- integrating with latest [libcod](https://github.com/ibuddieat/zk_libcod)
+- speex integration for dynamic sound loading
+- `unsafe` parametrized build for enabling functions like: `system`, `file_unlink`, `scandir` etc.
+- github workflow martix build
+- running container as non-root user
+- making mounted main and library folders read-only
+- update to latest ubuntu version
+- update to latest packages versions
+- other minor optimizations: removing not used packages
 
-* [`1.0`, `1.0-0.2`](https://github.com/Lonsofore/cod2docker/blob/master/Dockerfile)
+# 🙇🏻‍♂️ Known issues
 
-* [`1.0-voron`, `1.0-voron-0.2`](https://github.com/Lonsofore/cod2docker/blob/master/Dockerfile)
+- static creation of nl folder instead of dynamic
 
-* [`1.2`, `1.2-0.2`](https://github.com/Lonsofore/cod2docker/blob/master/Dockerfile)
+# 🤷🏻‍♂️ How to use?
 
-* [`1.2-voron`, `1.2-voron-0.2`](https://github.com/Lonsofore/cod2docker/blob/master/Dockerfile)
+Upload your main folder and fs_game of server to the machine running docker. Create `docker-compose.yml` from the template below.
 
-* [`1.3`, `1.3-0.2`, `latest`](https://github.com/Lonsofore/cod2docker/blob/master/Dockerfile)
-
-* [`1.3-voron`, `1.3-voron-0.2`](https://github.com/Lonsofore/cod2docker/blob/master/Dockerfile)
-
-
-## How to use
-
-Upload your main folder, fs_game of server (server folder) and [cod_lnxded for your version](https://killtube.org/showthread.php?1719-CoD2-Latest-cod2-linux-binaries-(1-0-1-2-1-3)) to your server.
-
-Create (or copy from repo) a docker-compose.yml file contains:
-```
-# example for 1.0 cod2 server
+```yml
+# Remember to adjust the parameters to your needs
 version: '3.7'
 services:
-  myserver:
-    image: lonsofore/cod2:1.0
-    container_name: myserver
+  my-server:
+    image: rutkowski/cod2:2.5-server1.3-mysqlvoron-speex
+    container_name: my-server
+    user: "1001:1002"
     restart: always
     stdin_open: true
     tty: true
     ports:
-      - 28960:28960
-      - 28960:28960/udp
+      - 28970:28970
+      - 28970:28970/udp
     volumes:
-      - ~/cod2/myserver:/cod2/myserver
-      - ~/cod2/main:/cod2/main
-      - ~/cod2/Library:/cod2/.callofduty2/myserver/Library
+      - ./my-server:/cod2/my-server
+      - ~/cod2/main/1_3:/cod2/main:ro
+      - ~/cod2/Library:/cod2/.callofduty2/my-server/Library:ro
     environment:
-      PARAMS_BEFORE: "+exec myserver.cfg"
+      PARAMS_BEFORE: "+exec server.cfg"
       COD2_SET_fs_homepath: "/cod2/.callofduty2/"
-      COD2_SET_fs_game: "myserver"
+      COD2_SET_fs_game: "my-server"
       COD2_SET_dedicated: 2
-      COD2_SET_net_port: 28960
+      COD2_SET_net_port: 28970
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "10"
 ```
-And replace here volumes path to yours (local:container) and environment variables with yours (put in PARAMS your own fs_game, server port and server config name and also server port to CHECK_PORT).
-
-
-# Support
-
-You always can get support on [Killtube thread](https://killtube.org/showthread.php?3167-CoD2-Setup-CoD2-with-Docker) and [Killtube Discord chat](https://discordapp.com/invite/mqBchQZ). 
-
-Feel free to ask!
