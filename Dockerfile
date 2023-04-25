@@ -88,7 +88,7 @@ COPY healthcheck.sh entrypoint.sh ./
 
 # pre-create volume directories
 RUN mkdir -p /cod2/main
-RUN mkdir -p /cod2/.callofduty2/nl/Library
+RUN mkdir -p /cod2/.callofduty2
 
 # change owner
 RUN chown -R ${user}:${group} /cod2
