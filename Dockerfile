@@ -74,8 +74,8 @@ RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysq
 # Set user and group
 ARG user=appuser
 ARG group=appuser
-ARG uid=1000
-ARG gid=1000
+ARG uid=1001
+ARG gid=1002
 RUN groupadd -g ${gid} ${group}
 RUN useradd -u ${uid} -g ${group} -s /bin/sh -d /cod2 ${user}
 
