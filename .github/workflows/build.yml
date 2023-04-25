@@ -6,10 +6,10 @@ jobs:
   build:
     strategy:
       matrix:
-        cod2_patch: [0, 3]
+        cod2_patch: [3]
         mysql_variant: [2]
-        speex: [0, 1]
-        enable_unsafe: [0, 1]
+        speex: [1]
+        enable_unsafe: [1]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
