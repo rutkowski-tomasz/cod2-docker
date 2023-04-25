@@ -44,7 +44,7 @@ RUN speexenc --version
 # compile libcod
 ARG cod2_patch="0"
 ARG libcod_url="https://github.com/ibuddieat/zk_libcod"
-ARG libcod_commit="8f9533b"
+ARG libcod_commit="f6b1582"
 ARG mysql_variant="1"
 ARG speex="0"
 ARG enable_unsafe="0"
