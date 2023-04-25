@@ -87,7 +87,6 @@ COPY ./cod2_lnxded/1_${cod2_patch} cod2_lnxded
 COPY healthcheck.sh entrypoint.sh ./
 
 # pre-create volume directories
-RUN mkdir -p /cod2/nl
 RUN mkdir -p /cod2/main
 RUN mkdir -p /cod2/.callofduty2/nl/Library
 
