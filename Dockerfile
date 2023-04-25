@@ -1,5 +1,8 @@
 FROM ubuntu:23.04
 
+# Create non-root user
+RUN useradd -m -d /home/user user
+
 # add architecture
 RUN dpkg --add-architecture i386 \
     && apt-get update >/dev/null
@@ -25,17 +28,6 @@ RUN if [ "$speex" = "1" ]; then \
             libogg-dev:i386 \
         >/dev/null; \
     fi
-
-
-RUN apt-get install -y \
-        git \
-        libtool \
-        build-essential \
-        automake \
-        g++-multilib \
-        libogg-dev \
-        libogg-dev:i386 \
-    >/dev/null
 
 # cod2 runtime requirements
 RUN apt-get install -y \
@@ -87,6 +79,7 @@ WORKDIR /cod2
 RUN cp /zk_libcod/code/bin/libcod2_1_${cod2_patch}.so libcod.so
 COPY ./cod2_lnxded/1_${cod2_patch} cod2_lnxded
 COPY healthcheck.sh entrypoint.sh ./
+RUN chown -R user:user /cod2
 RUN ls -la /cod2
 
 # cleanup
@@ -97,4 +90,5 @@ RUN chmod -R +w /zk_libcod && \
 HEALTHCHECK --interval=5s --timeout=3s --retries=7 CMD /cod2/healthcheck.sh
 
 # start script
+USER user
 ENTRYPOINT /cod2/entrypoint.sh
