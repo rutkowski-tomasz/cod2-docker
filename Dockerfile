@@ -77,9 +77,10 @@ RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysq
 RUN mkdir /cod2
 WORKDIR /cod2
 RUN cp /zk_libcod/code/bin/libcod2_1_${cod2_patch}.so libcod.so
-COPY ./cod2_lnxded/1_${cod2_patch} cod2_lnxded
-COPY healthcheck.sh entrypoint.sh ./
 RUN chown -R user:user /cod2
+COPY --chown=user:user ./cod2_lnxded/1_${cod2_patch} cod2_lnxded
+COPY --chown=user:user healthcheck.sh entrypoint.sh ./
+RUN chmod +x healthcheck.sh entrypoint.sh
 RUN ls -la /cod2
 
 # cleanup
