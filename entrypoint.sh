@@ -18,7 +18,6 @@ export LD_PRELOAD=/cod2/libcod.so
 ls -la /cod2
 ls -la /cod2/nl
 ls -la /cod2/main
-ls -la /cod2/main/1_3
 ls -la /cod2/.callofduty2
 ls -la /cod2/.callofduty2/nl
 ls -la /cod2/.callofduty2/nl/Library
