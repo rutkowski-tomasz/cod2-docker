@@ -7,9 +7,9 @@ jobs:
     strategy:
       matrix:
         cod2_patch: [3]
-        mysql_variant: [1, 2]
-        speex: [0]
-        enable_unsafe: [0, 1]
+        mysql_variant: [2]
+        speex: [0, 1]
+        enable_unsafe: [1]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
