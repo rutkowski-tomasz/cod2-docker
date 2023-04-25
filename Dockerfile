@@ -19,6 +19,7 @@ RUN apt-get install -y \
 ARG speex="0"
 RUN if [ "$speex" = "1" ]; then \
         apt-get install -y \
+            sudo \
             git \
             libtool \
             build-essential \
