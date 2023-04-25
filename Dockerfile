@@ -92,10 +92,7 @@ RUN mkdir -p /cod2/main
 RUN mkdir -p /cod2/.callofduty2/nl/Library
 
 # change owner
-RUN ls -la /cod2
 RUN chown -R ${user}:${group} /cod2
-RUN ls -la /cod2
-RUN chown -R ${user}:${group} /cod2/*
 RUN ls -la /cod2
 
 # cleanup
