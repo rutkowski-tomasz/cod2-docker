@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   nl-cod2-test:
-    image: rutkowski/cod2:2.2-server1.3-mysqlvoron-unsafe
+    image: rutkowski/cod2:2.5-server1.3-mysqlvoron-speex-unsafe
     container_name: nl-cod2-test
     restart: always
     stdin_open: true

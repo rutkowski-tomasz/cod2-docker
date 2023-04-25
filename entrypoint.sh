@@ -12,6 +12,7 @@ for cmd in ${cmds[@]}; do
     COMMANDS="$COMMANDS $parsed" 
 done
 
+export LD_LIBRARY_PATH=/lib:/lib/i386-linux-gnu:/usr/lib:/usr/lib/i386-linux-gnu
 export LD_PRELOAD=/cod2/libcod.so
 
 /cod2/cod2_lnxded "$PARAMS_BEFORE $COMMANDS $PARAMS $PARAMS_AFTER"
