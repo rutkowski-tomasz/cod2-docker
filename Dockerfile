@@ -19,8 +19,8 @@ RUN dpkg --add-architecture i386 \
         build-essential \
         automake \
         g++-multilib \
-        libogg-dev \
-        libogg-dev:i386 \
+        # libogg-dev \
+        # libogg-dev:i386 \
     && apt-get clean -qq
 
 # compile speex
@@ -37,9 +37,6 @@ RUN ldconfig
 
 WORKDIR /
 RUN rm -rf /speex
-
-RUN speexdec --version
-RUN speexenc --version
 
 # compile libcod
 ARG cod2_patch="0"
