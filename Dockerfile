@@ -93,4 +93,5 @@ HEALTHCHECK --interval=5s --timeout=3s --retries=7 CMD /cod2/healthcheck.sh
 
 # start script
 USER user
+RUN find / -name "libstdc++5*.so*" -or -name "libmysqlclient*.so*" -or -name "libsqlite3*.so*"
 ENTRYPOINT /cod2/entrypoint.sh

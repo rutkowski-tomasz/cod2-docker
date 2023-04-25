@@ -14,4 +14,4 @@ done
 
 export LD_PRELOAD=/cod2/libcod.so
 
-exec sudo -u user /cod2/cod2_lnxded "$PARAMS_BEFORE $COMMANDS $PARAMS $PARAMS_AFTER"
+/cod2/cod2_lnxded "$PARAMS_BEFORE $COMMANDS $PARAMS $PARAMS_AFTER"
