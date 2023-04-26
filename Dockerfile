@@ -56,7 +56,7 @@ RUN if [ "$speex" = "1" ]; then \
 
 # compile libcod
 ARG libcod_url="https://github.com/ibuddieat/zk_libcod"
-ARG libcod_commit="f6b1582"
+ARG libcod_commit="7c82b0ba36e557f5f3322d819422c38beba2a019"
 
 RUN git clone ${libcod_url} \
     && cd zk_libcod \
@@ -73,8 +73,8 @@ RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysq
 RUN mkdir /cod2
 
 # Set user and group
-ARG user=appuser
-ARG group=appuser
+ARG user=cod2
+ARG group=cod2
 ARG uid=1001
 ARG gid=1002
 RUN groupadd -g ${gid} ${group}

@@ -69,3 +69,9 @@ services:
         max-size: "10m"
         max-file: "10"
 ```
+
+# 🏠 Development
+
+Any contribution is welcome.
+
+To build locally you can use command `podman build --format=docker --build-arg cod2_patch=3 --build-arg mysql_variant=2 --build-arg speex=1 --build-arg enable_unsafe=1 -t cod2:local .`
