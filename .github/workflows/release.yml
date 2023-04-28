@@ -32,4 +32,4 @@ jobs:
             --mysql_variant=${{ matrix.mysql_variant }} \
             --speex=${{ matrix.speex }} \
             --enable_unsafe=${{ matrix.enable_unsafe }} \
-            --push=$PUSH_VALUE
+            --push=1
