@@ -43,9 +43,9 @@ Upload your main folder and fs_game of server to the machine running docker. Cre
 version: '3.7'
 services:
   my-server:
-    image: rutkowski/cod2:2.5-server1.3-mysqlvoron-speex
+    image: rutkowski/cod2:2.9-server1.3-mysql-unsafe
     container_name: my-server
-    user: "1001:1002"
+    user: "1001:1002" # you can skip, this is set by default
     restart: always
     stdin_open: true
     tty: true
@@ -53,12 +53,13 @@ services:
       - 28970:28970
       - 28970:28970/udp
     volumes:
-      - ./my-server:/cod2/my-server
+      - ./my-server:/cod2/my-server:ro
       - ~/cod2/main/1_3:/cod2/main:ro
-      - ~/cod2/Library:/cod2/.callofduty2/my-server/Library:ro
+      - ~/cod2/Library:/cod2/library:ro
     environment:
       PARAMS_BEFORE: "+exec server.cfg"
-      COD2_SET_fs_homepath: "/cod2/.callofduty2/"
+      COD2_SET_fs_homepath: "/cod2/home"
+      COD2_SET_fs_library: "/cod2/library"
       COD2_SET_fs_game: "my-server"
       COD2_SET_dedicated: 2
       COD2_SET_net_port: 28970
@@ -67,6 +68,11 @@ services:
       options:
         max-size: "10m"
         max-file: "10"
+
+networks:
+  default:
+    external:
+      name: my_network
 ```
 
 # 🏠 Development
