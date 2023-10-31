@@ -56,7 +56,7 @@ RUN if [ "$speex" = "1" ]; then \
 
 # compile libcod
 ARG libcod_url="https://github.com/ibuddieat/zk_libcod"
-ARG libcod_commit="617ec24bd4935cd1ec1e217ddac0e9d236e3d436"
+ARG libcod_commit="e018c122b267b413a8144013c51410b4db4b152a"
 
 RUN git clone ${libcod_url} \
     && cd zk_libcod \
