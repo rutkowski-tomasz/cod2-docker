@@ -80,3 +80,11 @@ networks:
 Any contribution is welcome.
 
 To build locally you can use command `podman build --format=docker --build-arg cod2_patch=3 --build-arg mysql_variant=2 --build-arg speex=1 --build-arg enable_unsafe=1 -t cod2:local .`
+
+# 📦 New version
+
+1. Update [source commit](https://github.com/rutkowski-tomasz/cod2-docker/blob/master/Dockerfile#L59) 
+2. Update [version](https://github.com/rutkowski-tomasz/cod2-docker/blob/master/__version__#L1) (It should match zk_libcod [release version](https://github.com/ibuddieat/zk_libcod/releases))
+3. `git commit`
+4. `git tag <same-as-pt2>`
+5. `git push --tags`
