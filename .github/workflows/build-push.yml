@@ -23,7 +23,11 @@ on:
       libcod_commit:
         type: string
         description: 'Commit hash of libcod to use'
-        required: true
+        default: "5f04a7f4e60d910945f13a786d15081843b72baf"
+      version:
+        type: string
+        description: 'Version of the image'
+        default: '3.12'
 
 jobs:
   build:
@@ -85,6 +89,18 @@ jobs:
             libcod_commit=${{ inputs.libcod_commit }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Install Trivy
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates
+          curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Trivy vulnerability scanner
+        run: trivy image --exit-code 1 --no-progress --severity HIGH,CRITICAL ${{ env.DOCKER_TAG }}
 
       - name: Move Docker cache
         run: |

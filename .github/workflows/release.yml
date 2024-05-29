@@ -21,5 +21,4 @@ jobs:
       enable_speex: ${{ matrix.enable_speex }}
       enable_unsafe: ${{ matrix.enable_unsafe }}
       enable_push: true
-      libcod_commit: "5f04a7f4e60d910945f13a786d15081843b72baf"
     secrets: inherit
