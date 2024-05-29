@@ -13,8 +13,8 @@ RUN apt-get install -y \
     >/dev/null
 
 # speex requirements
-ARG speex="0"
-RUN if [ "$speex" = "1" ]; then \
+ARG enable_speex="0"
+RUN if [ "$enable_speex" = "1" ]; then \
         apt-get install -y \
             git \
             libtool \
@@ -39,7 +39,7 @@ RUN apt-get install -y \
 RUN apt-get clean >/dev/null
 
 # compile speex
-RUN if [ "$speex" = "1" ]; then \
+RUN if [ "$enable_speex" = "1" ]; then \
         git clone https://gitlab.xiph.org/xiph/speex.git && \
         cd speex && \
         git checkout tags/Speex-1.1.9 -b 1.1.9 && \
@@ -68,7 +68,7 @@ COPY ./doit.sh doit.sh
 ARG cod2_patch="0"
 ARG mysql_variant="1"
 ARG enable_unsafe="0"
-RUN ./doit.sh --cod2_patch=${cod2_patch} --speex=${speex} --mysql_variant=${mysql_variant} --enable_unsafe=${enable_unsafe}
+RUN ./doit.sh --cod2_patch=${cod2_patch} --enable_speex=${enable_speex} --mysql_variant=${mysql_variant} --enable_unsafe=${enable_unsafe}
 
 RUN mkdir /cod2
 

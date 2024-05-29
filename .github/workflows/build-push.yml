@@ -1,0 +1,92 @@
+name: Reusable Docker Build and Push
+
+on:
+  workflow_call:
+    inputs:
+      cod2_patch:
+        type: string
+        description: 'CoD2 patch to use (0=1.0, 3=1.3)'
+        required: true
+      mysql_variant:
+        type: string
+        description: 'MySQL variant to use (0=disabled, 1=normal, 2=voron)'
+        required: true
+      enable_speex:
+        type: string
+        required: true
+      enable_unsafe:
+        type: string
+        required: true
+      enable_push:
+        type: boolean
+        required: true
+      libcod_commit:
+        type: string
+        description: 'Commit hash of libcod to use'
+        required: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Construct Tag
+        run: |
+          tag="rutkowski/cod2:$(cat __version__)-server1.${{ inputs.cod2_patch }}"
+          if [[ "${{ inputs.mysql_variant }}" == "1" ]]; then
+              tag="${tag}-mysql"
+          elif [[ "${{ inputs.mysql_variant }}" == "2" ]]; then
+              tag="${tag}-mysqlvoron"
+          fi
+          if [[ "${{ inputs.enable_speex }}" == "1" ]]; then
+              tag="${tag}-speex"
+          fi
+          if [[ "${{ inputs.enable_unsafe }}" == "1" ]]; then
+              tag="${tag}-unsafe"
+          fi
+          echo $tag
+          echo "DOCKER_TAG=${tag}" >> $GITHUB_ENV
+
+      - name: Cache Docker layers
+        uses: actions/cache@v4
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ inputs.enable_speex }}-${{ inputs.libcod_commit }}-${{ inputs.cod2_patch }}-${{ inputs.mysql_variant }}-${{ inputs.enable_unsafe }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ inputs.enable_speex }}-${{ inputs.libcod_commit }}-${{ inputs.cod2_patch }}-${{ inputs.mysql_variant }}-
+            ${{ runner.os }}-buildx-${{ inputs.enable_speex }}-${{ inputs.libcod_commit }}-${{ inputs.cod2_patch }}-
+            ${{ runner.os }}-buildx-${{ inputs.enable_speex }}-${{ inputs.libcod_commit }}-
+            ${{ runner.os }}-buildx-${{ inputs.enable_speex }}-
+            ${{ runner.os }}-buildx-
+
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ inputs.enable_push }}
+          tags: ${{ env.DOCKER_TAG }}
+          build-args: |
+            cod2_patch=${{ inputs.cod2_patch }}
+            mysql_variant=${{ inputs.mysql_variant }}
+            enable_speex=${{ inputs.enable_speex }}
+            enable_unsafe=${{ inputs.enable_unsafe }}
+            libcod_commit=${{ inputs.libcod_commit }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Move Docker cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache

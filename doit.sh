@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# ./doit.sh --cod2_patch=3 --speex=0 --mysql_variant=2
-
 cc="g++"
 options="-I. -m32 -fPIC -Wall"
 # -g -ggdb -O0 // debug build without optimization
@@ -14,8 +12,8 @@ while [ $# -gt 0 ]; do
         --cod2_patch=*)
         cod2_patch="${1#*=}"
         ;;
-        --speex=*)
-        speex="${1#*=}"
+        --enable_speex=*)
+        enable_speex="${1#*=}"
         ;;
         --mysql_variant=*)
         mysql_variant="${1#*=}"
@@ -34,7 +32,7 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-for arg_name in "cod2_patch" "speex" "mysql_variant" "enable_unsafe"; do
+for arg_name in "cod2_patch" "enable_speex" "mysql_variant" "enable_unsafe"; do
     arg_value=$(eval echo \$$arg_name)
     if [ -z "$arg_value" ]; then
         echo "Error: Missing argument --${arg_name}"
@@ -67,7 +65,7 @@ if [ "$enable_unsafe" == "1" ]; then
     sed -i "/#define ENABLE_UNSAFE 0/c\#define ENABLE_UNSAFE 1" config.hpp
 fi
 
-if [ "$speex" == "0" ]; then
+if [ "$enable_speex" == "0" ]; then
     speex_link=""
     sed -i "/#define COMPILE_CUSTOM_VOICE 1/c\#define COMPILE_CUSTOM_VOICE 0" config.hpp
 else
