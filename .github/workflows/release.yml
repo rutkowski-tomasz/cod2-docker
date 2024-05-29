@@ -21,5 +21,26 @@ jobs:
       enable_speex: ${{ matrix.enable_speex }}
       enable_unsafe: ${{ matrix.enable_unsafe }}
       enable_push: true
-      libcod_commit: "5f04a7f4e60d910945f13a786d15081843b72baf"
     secrets: inherit
+  
+  tag-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Read version file
+        run: echo "VERSION=$(cat __version__)" >> $GITHUB_ENV
+
+      - name: Set up Git config
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+
+      - name: Create and push tag
+        run: |
+          git tag -fa ${{ env.VERSION }} -m "Release ${{ env.VERSION }}"
+          git push origin --tags --force
+

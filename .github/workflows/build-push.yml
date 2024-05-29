@@ -20,10 +20,13 @@ on:
       enable_push:
         type: boolean
         required: true
+      enable_scanning:
+        type: boolean
+        default: false
       libcod_commit:
         type: string
         description: 'Commit hash of libcod to use'
-        required: true
+        default: "5f04a7f4e60d910945f13a786d15081843b72baf"
 
 jobs:
   build:
@@ -41,9 +44,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Read version file
+        run: echo "VERSION=$(cat __version__)" >> $GITHUB_ENV
+
       - name: Construct Tag
         run: |
-          tag="rutkowski/cod2:$(cat __version__)-server1.${{ inputs.cod2_patch }}"
+          tag="rutkowski/cod2:${{ env.VERSION }}-server1.${{ inputs.cod2_patch }}"
           if [[ "${{ inputs.mysql_variant }}" == "1" ]]; then
               tag="${tag}-mysql"
           elif [[ "${{ inputs.mysql_variant }}" == "2" ]]; then
@@ -85,6 +91,20 @@ jobs:
             libcod_commit=${{ inputs.libcod_commit }}
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
+
+      - name: Install Trivy
+        if: ${{ inputs.enable_scanning }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-transport-https ca-certificates
+          curl -fsSL https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+          echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+          sudo apt-get update
+          sudo apt-get install -y trivy
+
+      - name: Trivy vulnerability scanner
+        if: ${{ inputs.enable_scanning }}
+        run: trivy image --exit-code 0 --no-progress --severity HIGH,CRITICAL ${{ env.DOCKER_TAG }}
 
       - name: Move Docker cache
         run: |

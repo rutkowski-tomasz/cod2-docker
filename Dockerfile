@@ -1,15 +1,13 @@
-FROM ubuntu:23.04
+FROM ubuntu:24.04
 
 # add architecture
 RUN dpkg --add-architecture i386 \
     && apt-get update >/dev/null
 
 # libcod requirements
-RUN apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         g++-multilib \
         git \
-        libmysqlclient-dev:i386 \
-        libsqlite3-dev:i386 \
     >/dev/null
 
 # speex requirements
@@ -28,7 +26,7 @@ RUN if [ "$enable_speex" = "1" ]; then \
     fi
 
 # cod2 runtime requirements
-RUN apt-get install -y \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y \
         libstdc++5:i386 \
         netcat-openbsd \
         libmysqlclient-dev:i386 \

@@ -12,5 +12,5 @@ jobs:
       enable_speex: 1
       enable_unsafe: 1
       enable_push: false
-      libcod_commit: "5f04a7f4e60d910945f13a786d15081843b72baf"
+      enable_scanning: true
     secrets: inherit
