@@ -47,7 +47,7 @@ jobs:
 
       - name: Construct Tag
         run: |
-          tag="rutkowski/cod2:$(cat __version__)-server1.${{ inputs.cod2_patch }}"
+          tag="rutkowski/cod2:${{ inputs.version }}-server1.${{ inputs.cod2_patch }}"
           if [[ "${{ inputs.mysql_variant }}" == "1" ]]; then
               tag="${tag}-mysql"
           elif [[ "${{ inputs.mysql_variant }}" == "2" ]]; then
