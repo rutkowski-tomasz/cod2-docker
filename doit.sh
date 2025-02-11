@@ -168,11 +168,20 @@ fi
 echo "##### COMPILE $1 LIBCOD.CPP #####"
 $cc $debug $options $constants -c libcod.cpp -o objects_$1/libcod.opp
 
+echo "##### COMPILE $1 PROXY.C #####"
+$cc $debug $options $constants -c proxy/proxy.c -o objects_"$1"/proxy.opp
+
 echo "##### COMPILE $1 QVSNPRINTF.C #####"
 $cc $debug $options $constants -c lib/qvsnprintf.c -o objects_"$1"/qvsnprintf.opp
 
+echo "##### COMPILE $1 RATELIMITER.CPP #####"
+$cc $debug $options $constants -c ratelimiter.cpp -o objects_"$1"/ratelimiter.opp
+
 echo "##### COMPILE $1 STRCMP_CONSTANT_TIME.C #####"
 $cc $debug $options $constants -c lib/strcmp_constant_time.c -o objects_"$1"/strcmp_constant_time.opp
+
+echo "##### COMPILE $1 UTILS.CPP #####"
+$cc $debug $options $constants -c utils.cpp -o objects_"$1"/utils.opp
 
 if [ -d extra ]; then
 	echo "##### COMPILE $1 EXTRAS #####"
