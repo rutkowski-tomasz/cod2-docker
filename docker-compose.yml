@@ -1,7 +1,7 @@
 version: '3.7'
 services:
   my-server:
-    image: rutkowski/cod2:2.9-server1.3-mysql-unsafe
+    image: rutkowski/cod2:13.2-server1.3-mysql-unsafe
     container_name: my-server
     user: "1001:1002" # you can skip, this is set by default
     restart: always
@@ -13,11 +13,11 @@ services:
     volumes:
       - ./my-server:/cod2/my-server:ro
       - ~/cod2/main/1_3:/cod2/main:ro
-      - ~/cod2/Library:/cod2/library:ro
+      - ~/cod2/Library:/cod2/home/library:ro
     environment:
       PARAMS_BEFORE: "+exec server.cfg"
       COD2_SET_fs_homepath: "/cod2/home"
-      COD2_SET_fs_library: "/cod2/library"
+      COD2_SET_fs_library: "library"
       COD2_SET_fs_game: "my-server"
       COD2_SET_dedicated: 2
       COD2_SET_net_port: 28970
