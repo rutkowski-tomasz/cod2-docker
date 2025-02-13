@@ -1,5 +1,18 @@
 #!/bin/bash -ex
 
+fs_game=$COD2_SET_fs_homepath/$COD2_SET_fs_game
+fs_library=$COD2_SET_fs_homepath/$COD2_SET_fs_game/$COD2_SET_fs_library
+
+if [ ! -d "$fs_game" ]; then
+    mkdir -p $fs_game
+    if [ ! -d "$fs_library" ]; then
+        ln -s /cod2/library $fs_library
+    fi
+fi
+
+ls -l $fs_game
+ls -l $fs_library
+
 # prefix to parse cvars from envs
 prefix=COD2_
 cmds=(set seta sets)
