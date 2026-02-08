@@ -1,7 +1,7 @@
 #!/bin/bash
 
 cc="g++"
-options="-I. -m32 -fPIC -Wall"
+options="-I. -m32 -fPIC -Wall -std=c++11"
 # -g -ggdb -O0 // debug build without optimization
 # -Wno-write-strings // not full warnings
 
@@ -118,6 +118,11 @@ fi
 if grep -q "COMPILE_EXEC 1" config.hpp; then
 	echo "##### COMPILE $1 GSC_EXEC.CPP #####"
 	$cc $debug $options $constants -c gsc_exec.cpp -o objects_$1/gsc_exec.opp
+fi
+
+if  grep -q "COMPILE_GRAPH 1" config.hpp; then
+	echo "##### COMPILE $1 GSC_GRAPH.CPP #####"
+	$cc $debug $options $constants -c gsc_graph.cpp -o objects_$1/gsc_graph.opp
 fi
 
 if grep -q "COMPILE_LEVEL 1" config.hpp; then

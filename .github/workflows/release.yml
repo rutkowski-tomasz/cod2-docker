@@ -12,9 +12,9 @@ jobs:
     strategy:
       matrix:
         cod2_patch: [3]
-        mysql_variant: [1, 2]
-        enable_speex: [0, 1]
-        enable_unsafe: [0, 1]
+        mysql_variant: [1]
+        enable_speex: [0]
+        enable_unsafe: [1]
     with:
       cod2_patch: ${{ matrix.cod2_patch }}
       mysql_variant: ${{ matrix.mysql_variant }}
@@ -22,7 +22,7 @@ jobs:
       enable_unsafe: ${{ matrix.enable_unsafe }}
       enable_push: true
     secrets: inherit
-  
+
   tag-version:
     runs-on: ubuntu-latest
     steps:
@@ -43,4 +43,3 @@ jobs:
         run: |
           git tag -fa ${{ env.VERSION }} -m "Release ${{ env.VERSION }}"
           git push origin --tags --force
-

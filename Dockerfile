@@ -54,7 +54,7 @@ RUN if [ "$enable_speex" = "1" ]; then \
 
 # compile libcod
 ARG libcod_url="https://github.com/nl-squad/libcod"
-ARG libcod_commit="d7ea7ba59b2b529a27f729bc1f33a96937ec4575"
+ARG libcod_commit="9390a0859b29efc985cac5627be31b84e95d787c"
 
 RUN git clone ${libcod_url} \
     && cd libcod \
@@ -80,6 +80,7 @@ RUN useradd -u ${uid} -g ${group} -s /bin/sh -d /cod2 ${user}
 
 # cod2 server files
 WORKDIR /cod2
+RUN ls -lh /libcod/code/bin/libcod2_1_${cod2_patch}.so
 RUN cp /libcod/code/bin/libcod2_1_${cod2_patch}.so libcod.so
 COPY ./cod2_lnxded/1_${cod2_patch} cod2_lnxded
 COPY healthcheck.sh entrypoint.sh ./
