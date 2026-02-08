@@ -53,14 +53,14 @@ RUN if [ "$enable_speex" = "1" ]; then \
     fi
 
 # compile libcod
-ARG libcod_url="https://github.com/ibuddieat/zk_libcod"
-ARG libcod_commit="8cf2e3d17e418b8fb0a8df259e40ad8000ecec8e"
+ARG libcod_url="https://github.com/nl-squad/libcod"
+ARG libcod_commit="d7ea7ba59b2b529a27f729bc1f33a96937ec4575"
 
 RUN git clone ${libcod_url} \
-    && cd zk_libcod \
+    && cd libcod \
     && if [ -z "$libcod_commit" ]; then git checkout ${libcod_commit}; fi
 
-WORKDIR /zk_libcod/code
+WORKDIR /libcod/code
 COPY ./doit.sh doit.sh
 
 ARG cod2_patch="0"
@@ -80,7 +80,7 @@ RUN useradd -u ${uid} -g ${group} -s /bin/sh -d /cod2 ${user}
 
 # cod2 server files
 WORKDIR /cod2
-RUN cp /zk_libcod/code/bin/libcod2_1_${cod2_patch}.so libcod.so
+RUN cp /libcod/code/bin/libcod2_1_${cod2_patch}.so libcod.so
 COPY ./cod2_lnxded/1_${cod2_patch} cod2_lnxded
 COPY healthcheck.sh entrypoint.sh ./
 
@@ -94,8 +94,8 @@ RUN chown -R ${user}:${group} /cod2
 RUN ls -la /cod2
 
 # cleanup
-RUN chmod -R +w /zk_libcod && \
-    rm -rf /zk_libcod
+RUN chmod -R +w /libcod && \
+    rm -rf /libcod
 
 # Switch to user
 USER ${uid}:${gid}

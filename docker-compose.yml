@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 services:
   my-server:
     image: rutkowski/cod2:13.3-server1.3-mysql-unsafe
@@ -19,6 +19,7 @@ services:
       COD2_SET_fs_homepath: "/cod2/home"
       COD2_SET_fs_library: "library"
       COD2_SET_fs_game: "my-server"
+      COD2_SET_fs_gametypes: "maps/mp/gametypes"
       COD2_SET_dedicated: 2
       COD2_SET_net_port: 28970
     logging:
