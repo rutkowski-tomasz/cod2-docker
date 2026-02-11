@@ -1,11 +1,11 @@
 #!/bin/bash -ex
 
-fs_game=$COD2_SET_fs_homepath/$COD2_SET_fs_game
-fs_library=$COD2_SET_fs_homepath/$COD2_SET_fs_game/$COD2_SET_fs_library
+fs_game="${COD2_SET_fs_homepath%/}/${COD2_SET_fs_game}"
+fs_library="${fs_game%/}/${fs_library_rel}"
 
-mkdir -p $fs_game
+mkdir -p "$fs_game"
 if [ -d /cod2/library ]; then
-    ln -s /cod2/library $fs_library
+    ln -sfn /cod2/library "$fs_library"
 fi
 
 

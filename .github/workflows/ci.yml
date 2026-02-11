@@ -124,11 +124,14 @@ jobs:
       - name: Write summary
         shell: bash
         run: |
+          IFS=',' read -r -a tag_list <<< "${{ steps.build_meta.outputs.tags }}"
           {
             echo "## Build Summary"
             echo ""
-            echo "- 📦 Image: \`${{ steps.build_meta.outputs.image }}\`"
-            echo "- 🏷️ Tags: \`${{ steps.build_meta.outputs.tags }}\`"
+            echo "- 🏷️ Tags:"
+            for tag in "${tag_list[@]}"; do
+              echo "  - \`${tag}\`"
+            done
             echo "- 🧬 libcod: [${{ steps.build_meta.outputs.libcod_commit }}](${{ env.LIBCOD_REPO_URL }}/commit/${{ steps.build_meta.outputs.libcod_commit }})"
           } >> "$GITHUB_STEP_SUMMARY"
 

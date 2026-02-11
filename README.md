@@ -1,24 +1,23 @@
 # 🚢 cod2-docker
 
-Docker image for your Call of Duty 2 server. Libcod included! 
+Docker image for your Call of Duty 2 server. Libcod included!
 
-All the tags can be found here: [docker hub](https://hub.docker.com/repository/docker/rutkowski/cod2/general).
+All the tags can be found [here](https://github.com/users/rutkowski-tomasz/packages/container/package/cod2-server-1.3).
 
 # 🪧 Tagging convention
 
-`rutkowski:cod2/<version>-server<cod2-version>[-mysql-variant][-speex-enabled][-unsafe-enabled]`
+Image name:
+`ghcr.io/<owner>/cod2-server-1.3`
 
-For example image tagged `rutkowski/cod2:2.5-server1.3-mysqlvoron-speex-unsafe`:
-- is representation of 2.5 version of this repo
-- each image has libcod suppor
-  - versions 1.x are integrated with [voron's libcod](https://github.com/voron00/libcod)
-  - versions 2.x are integrated with [iBuddie's zk_libcod](https://github.com/ibuddieat/zk_libcod)
-- `server1.3` - is built for CoD2 version 1.3
-- `mysqlvoron` - has mysql support added, voron version
-- `speex` - has speex support added, required for dynamic loading and playing sounds
-- `unsafe` unsafe flag was enabled during libcod build (adding commands for system manipulation)
+Tags:
+`<version>[-speex][-unsafe]`
 
-For libcod docs check [here](https://github.com/ibuddieat/zk_libcod)
+For example image tagged `ghcr.io/rutkowski-tomasz/cod2-server-1.3:0.9-speex-unsafe`:
+- `0.9` is the release version for this repository
+- `-speex` enables speex support
+- `-unsafe` enables unsafe libcod features (system manipulation helpers)
+
+The default published tag is always `latest` plus the version tag.
 
 # 🚀 Features
 
@@ -27,11 +26,10 @@ This repo was created beacuse it seems that [cod2docker](https://github.com/Lons
 - integrating with latest [zk_libcod](https://github.com/ibuddieat/zk_libcod)
 - speex integration for dynamic sound loading
 - `unsafe` parametrized build for enabling functions like: `system`, `file_unlink`, `scandir` etc.
-- github workflow martix build
+- github workflow builds and publishes images on push
 - running container as non-root user
 - making mounted main and library folders read-only
-- update to latest ubuntu version
-- update to latest packages versions
+- update to latest ubuntu & packages version
 - other minor optimizations: removing not used packages
 
 # 🤷🏻‍♂️ How to use?
@@ -43,7 +41,7 @@ Upload your main folder and fs_game of server to the machine running docker. Cre
 version: '3.7'
 services:
   my-server:
-    image: rutkowski/cod2:2.9-server1.3-mysql-unsafe
+    image: ghcr.io/rutkowski-tomasz/cod2-server-1.3:latest
     container_name: my-server
     user: "1001:1002" # you can skip, this is set by default
     restart: always
@@ -59,7 +57,7 @@ services:
     environment:
       PARAMS_BEFORE: "+exec server.cfg"
       COD2_SET_fs_homepath: "/cod2/home"
-      COD2_SET_fs_library: "/cod2/library"
+      COD2_SET_fs_library: "library"
       COD2_SET_fs_game: "my-server"
       COD2_SET_dedicated: 2
       COD2_SET_net_port: 28970
@@ -79,8 +77,9 @@ networks:
 
 Any contribution is welcome.
 
-To build locally you can use command `podman build --format=docker --build-arg cod2_patch=3 --build-arg mysql_variant=2 --build-arg speex=1 --build-arg enable_unsafe=1 -t cod2:local .`
+To build locally you can use:
+`podman build --format=docker --build-arg cod2_patch=3 --build-arg mysql_variant=1 --build-arg enable_speex=false --build-arg enable_unsafe=true -t cod2:local .`
 
 # 📦 New version
 
-Update [libcod_commit and version](https://github.com/rutkowski-tomasz/cod2-docker/blob/master/.github/workflows/build-push.yml#L23) 
+Push to `master` to build and publish a new image and create a git tag. The version is derived from git tags using conventional commits (major bump on breaking changes, otherwise minor).

@@ -210,10 +210,7 @@ objects="$(ls objects_$1/*.opp)"
 $cc -m32 -shared -L/lib32 -o bin/lib$1.so -ldl $objects -lpthread $mysql_link $speex_link
 rm objects_$1 -r
 
-if [ mysql_variant > 0 ]; then
+if [ "$mysql_variant" -gt 0 ]; then
 	sed -i "/#define COMPILE_MYSQL_DEFAULT 1/c\#define COMPILE_MYSQL_DEFAULT 0" config.hpp
 	sed -i "/#define COMPILE_MYSQL_VORON 1/c\#define COMPILE_MYSQL_VORON 0" config.hpp
 fi
-
-# Read leftover
-rm 0
