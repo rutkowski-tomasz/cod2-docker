@@ -41,6 +41,9 @@ for arg_name in "cod2_patch" "enable_speex" "mysql_variant" "enable_unsafe"; do
 done
 # End: [Custom] Get parameters
 
+is_true() {
+    [ "$1" = "true" ]
+}
 
 mysql_link=""
 if [ "$mysql_variant" = '1' ]; then
@@ -61,11 +64,11 @@ elif [ "$mysql_variant" = '2' ]; then
     fi
 fi
 
-if [ "$enable_unsafe" == "1" ]; then
+if is_true "$enable_unsafe"; then
     sed -i "/#define ENABLE_UNSAFE 0/c\#define ENABLE_UNSAFE 1" config.hpp
 fi
 
-if [ "$enable_speex" == "0" ]; then
+if ! is_true "$enable_speex"; then
     speex_link=""
     sed -i "/#define COMPILE_CUSTOM_VOICE 1/c\#define COMPILE_CUSTOM_VOICE 0" config.hpp
 else

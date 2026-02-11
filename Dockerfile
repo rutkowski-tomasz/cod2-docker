@@ -11,8 +11,8 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     >/dev/null
 
 # speex requirements
-ARG enable_speex="0"
-RUN if [ "$enable_speex" = "1" ]; then \
+ARG enable_speex="false"
+RUN if [ "$enable_speex" = "true" ]; then \
         apt-get install -y \
             git \
             libtool \
@@ -37,7 +37,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
 RUN apt-get clean >/dev/null
 
 # compile speex
-RUN if [ "$enable_speex" = "1" ]; then \
+RUN if [ "$enable_speex" = "true" ]; then \
         git clone https://gitlab.xiph.org/xiph/speex.git && \
         cd speex && \
         git checkout tags/Speex-1.1.9 -b 1.1.9 && \

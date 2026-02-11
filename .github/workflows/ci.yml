@@ -3,6 +3,8 @@ name: Build and Publish Image
 on:
   pull_request:
   push:
+    branches:
+      - master
   workflow_dispatch:
     inputs:
       publish:
@@ -42,6 +44,34 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Determine version
+        id: versioning
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          last_tag="$(git tag -l 'v*' | sort -V | tail -n 1)"
+          version="0.1"
+          bump="minor"
+
+          if [ -n "$last_tag" ]; then
+            last_version="${last_tag#v}"
+            major="${last_version%%.*}"
+            minor="${last_version##*.}"
+            version="${major}.$((minor + 1))"
+          fi
+
+          if [ -n "$last_tag" ]; then
+            range="${last_tag}..HEAD"
+            if git log --pretty=%B "${range}" | grep -qE 'BREAKING CHANGE|^[a-zA-Z]+(\([^)]+\))?!:'; then
+              bump="major"
+              version="$((major + 1)).0"
+            fi
+          fi
+
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "last_tag=${last_tag}" >> "$GITHUB_OUTPUT"
+
       - name: Compute build settings
         id: build_meta
         shell: bash
@@ -49,9 +79,9 @@ jobs:
           set -euo pipefail
 
           image="ghcr.io/${{ github.repository_owner }}/cod2-server-1.${COD2_PATCH}"
-          speex="0"
-          unsafe="0"
-          version=""
+          speex="false"
+          unsafe="true"
+          version="${{ steps.versioning.outputs.version }}"
           push="false"
           suffix=""
           tags=""
@@ -62,32 +92,24 @@ jobs:
             exit 1
           fi
 
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.publish }}" = "true" ]; then
-            if [ "${{ inputs.enable_speex }}" = "true" ]; then
-              speex="1"
-              suffix="${suffix}-speex"
-            fi
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            speex="${{ inputs.enable_speex }}"
+            unsafe="${{ inputs.enable_unsafe }}"
+          fi
 
-            if [ "${{ inputs.enable_unsafe }}" = "true" ]; then
-              unsafe="1"
-              suffix="${suffix}-unsafe"
-            fi
+          if [ "$speex" = "true" ]; then
+            suffix="${suffix}-speex"
+          fi
+          if [ "$unsafe" = "true" ]; then
+            suffix="${suffix}-unsafe"
+          fi
 
-            last_tag="$(git tag -l 'v*' | sort -V | tail -n 1)"
-            if [ -z "$last_tag" ]; then
-              version="0.1"
-            else
-              last_version="${last_tag#v}"
-              major="${last_version%%.*}"
-              minor="${last_version##*.}"
-              version="${major}.$((minor + 1))"
-            fi
+          tags="${image}:${version}${suffix}"
+          tags="${tags},${image}:latest${suffix}"
 
-            tags="${image}:${version}${suffix}"
-            tags="${tags},${image}:latest${suffix}"
+          if [ "${{ github.event_name }}" = "push" ] || \
+             { [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.publish }}" = "true" ]; }; then
             push="true"
-          else
-            tags="${image}:ci-${GITHUB_SHA::7}"
           fi
 
           echo "push=${push}" >> "$GITHUB_OUTPUT"
@@ -96,6 +118,19 @@ jobs:
           echo "unsafe=${unsafe}" >> "$GITHUB_OUTPUT"
           echo "libcod_commit=${libcod_commit}" >> "$GITHUB_OUTPUT"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "image=${image}" >> "$GITHUB_OUTPUT"
+          echo "suffix=${suffix}" >> "$GITHUB_OUTPUT"
+
+      - name: Write summary
+        shell: bash
+        run: |
+          {
+            echo "## Build Summary"
+            echo ""
+            echo "- 📦 Image: \`${{ steps.build_meta.outputs.image }}\`"
+            echo "- 🏷️ Tags: \`${{ steps.build_meta.outputs.tags }}\`"
+            echo "- 🧬 libcod: [${{ steps.build_meta.outputs.libcod_commit }}](${{ env.LIBCOD_REPO_URL }}/commit/${{ steps.build_meta.outputs.libcod_commit }})"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Login to GHCR
         if: ${{ steps.build_meta.outputs.push == 'true' }}
@@ -129,8 +164,10 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Create git tag
-        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+        if: ${{ steps.build_meta.outputs.push == 'true' }}
         run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
           version="${{ steps.build_meta.outputs.version }}"
           git fetch --tags
           if git rev-parse "v${version}" >/dev/null 2>&1; then
