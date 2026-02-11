@@ -58,7 +58,7 @@ ARG libcod_commit="9390a0859b29efc985cac5627be31b84e95d787c"
 
 RUN git clone ${libcod_url} \
     && cd libcod \
-    && if [ -z "$libcod_commit" ]; then git checkout ${libcod_commit}; fi
+    && if [ -n "$libcod_commit" ]; then git checkout ${libcod_commit}; fi
 
 WORKDIR /libcod/code
 COPY ./doit.sh doit.sh

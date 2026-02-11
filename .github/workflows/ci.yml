@@ -1,0 +1,141 @@
+name: Build and Publish Image
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Create git tag and publish image"
+        type: boolean
+        default: false
+      enable_speex:
+        description: "Enable Speex support"
+        type: boolean
+        default: false
+      enable_unsafe:
+        description: "Enable unsafe libcod patches"
+        type: boolean
+        default: true
+
+concurrency:
+  group: docker-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  COD2_PATCH: "3"
+  MYSQL_VARIANT: "1"
+  LIBCOD_REPO_URL: "https://github.com/nl-squad/libcod.git"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compute build settings
+        id: build_meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          image="ghcr.io/${{ github.repository_owner }}/cod2-server-1.${COD2_PATCH}"
+          speex="0"
+          unsafe="0"
+          version=""
+          push="false"
+          suffix=""
+          tags=""
+
+          libcod_commit="$(git ls-remote "${LIBCOD_REPO_URL}" HEAD | awk '{print $1}')"
+          if [ -z "$libcod_commit" ]; then
+            echo "Failed to read libcod_commit from libcod repo" >&2
+            exit 1
+          fi
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.publish }}" = "true" ]; then
+            if [ "${{ inputs.enable_speex }}" = "true" ]; then
+              speex="1"
+              suffix="${suffix}-speex"
+            fi
+
+            if [ "${{ inputs.enable_unsafe }}" = "true" ]; then
+              unsafe="1"
+              suffix="${suffix}-unsafe"
+            fi
+
+            last_tag="$(git tag -l 'v*' | sort -V | tail -n 1)"
+            if [ -z "$last_tag" ]; then
+              version="0.1"
+            else
+              last_version="${last_tag#v}"
+              major="${last_version%%.*}"
+              minor="${last_version##*.}"
+              version="${major}.$((minor + 1))"
+            fi
+
+            tags="${image}:${version}${suffix}"
+            tags="${tags},${image}:latest${suffix}"
+            push="true"
+          else
+            tags="${image}:ci-${GITHUB_SHA::7}"
+          fi
+
+          echo "push=${push}" >> "$GITHUB_OUTPUT"
+          echo "tags=${tags}" >> "$GITHUB_OUTPUT"
+          echo "speex=${speex}" >> "$GITHUB_OUTPUT"
+          echo "unsafe=${unsafe}" >> "$GITHUB_OUTPUT"
+          echo "libcod_commit=${libcod_commit}" >> "$GITHUB_OUTPUT"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Login to GHCR
+        if: ${{ steps.build_meta.outputs.push == 'true' }}
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build (and optionally push)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ steps.build_meta.outputs.push == 'true' }}
+          tags: ${{ steps.build_meta.outputs.tags }}
+          labels: |
+            org.opencontainers.image.title=cod2-server-1.3
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.version=${{ steps.build_meta.outputs.version }}
+            io.cod2.libcod.commit=${{ steps.build_meta.outputs.libcod_commit }}
+            io.cod2.libcod.repo=${{ env.LIBCOD_REPO_URL }}
+          build-args: |
+            cod2_patch=${{ env.COD2_PATCH }}
+            mysql_variant=${{ env.MYSQL_VARIANT }}
+            enable_speex=${{ steps.build_meta.outputs.speex }}
+            enable_unsafe=${{ steps.build_meta.outputs.unsafe }}
+            libcod_commit=${{ steps.build_meta.outputs.libcod_commit }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Create git tag
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+        run: |
+          version="${{ steps.build_meta.outputs.version }}"
+          git fetch --tags
+          if git rev-parse "v${version}" >/dev/null 2>&1; then
+            echo "Tag v${version} already exists" >&2
+            exit 1
+          fi
+          git tag -a "v${version}" -m "Release v${version}"
+          git push origin "v${version}"
