@@ -53,8 +53,8 @@ RUN if [ "$enable_speex" = "true" ]; then \
     fi
 
 # compile libcod
-ARG libcod_url="https://github.com/nl-squad/libcod"
-ARG libcod_commit="9390a0859b29efc985cac5627be31b84e95d787c"
+ARG libcod_url
+ARG libcod_commit
 
 RUN git clone ${libcod_url} \
     && cd libcod \
@@ -65,7 +65,7 @@ COPY ./doit.sh doit.sh
 
 ARG cod2_patch="0"
 ARG mysql_variant="1"
-ARG enable_unsafe="0"
+ARG enable_unsafe="true"
 RUN ./doit.sh --cod2_patch=${cod2_patch} --enable_speex=${enable_speex} --mysql_variant=${mysql_variant} --enable_unsafe=${enable_unsafe}
 
 RUN mkdir /cod2

@@ -4,28 +4,12 @@ Docker image for your Call of Duty 2 server. Libcod included!
 
 All the tags can be found [here](https://github.com/users/rutkowski-tomasz/packages/container/package/cod2-server-1.3).
 
-# 🪧 Tagging convention
-
-Image name:
-`ghcr.io/<owner>/cod2-server-1.3`
-
-Tags:
-`<version>[-speex][-unsafe]`
-
-For example image tagged `ghcr.io/rutkowski-tomasz/cod2-server-1.3:0.9-speex-unsafe`:
-- `0.9` is the release version for this repository
-- `-speex` enables speex support
-- `-unsafe` enables unsafe libcod features (system manipulation helpers)
-
-The default published tag is always `latest` plus the version tag.
-
 # 🚀 Features
 
 This repo was created beacuse it seems that [cod2docker](https://github.com/Lonsofore/cod2docker) is not longer maintained. Also it includes following advancements:
 
 - integrating with latest [zk_libcod](https://github.com/ibuddieat/zk_libcod)
 - speex integration for dynamic sound loading
-- `unsafe` parametrized build for enabling functions like: `system`, `file_unlink`, `scandir` etc.
 - github workflow builds and publishes images on push
 - running container as non-root user
 - making mounted main and library folders read-only
@@ -78,7 +62,7 @@ networks:
 Any contribution is welcome.
 
 To build locally you can use:
-`podman build --format=docker --build-arg cod2_patch=3 --build-arg mysql_variant=1 --build-arg enable_speex=false --build-arg enable_unsafe=true -t cod2:local .`
+`podman build --format=docker --build-arg cod2_patch=3 --build-arg mysql_variant=1 --build-arg enable_speex=false --build-arg enable_unsafe=false --build-arg libcod_url=https://github.com/nl-squad/libcod -t cod2:local .`
 
 # 📦 New version
 

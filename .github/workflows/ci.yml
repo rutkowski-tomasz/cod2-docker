@@ -11,14 +11,6 @@ on:
         description: "Create git tag and publish image"
         type: boolean
         default: false
-      enable_speex:
-        description: "Enable Speex support"
-        type: boolean
-        default: false
-      enable_unsafe:
-        description: "Enable unsafe libcod patches"
-        type: boolean
-        default: true
 
 concurrency:
   group: docker-ci-${{ github.ref }}
@@ -79,8 +71,6 @@ jobs:
           set -euo pipefail
 
           image="ghcr.io/${{ github.repository_owner }}/cod2-server-1.${COD2_PATCH}"
-          speex="false"
-          unsafe="true"
           version="${{ steps.versioning.outputs.version }}"
           push="false"
           suffix=""
@@ -90,18 +80,6 @@ jobs:
           if [ -z "$libcod_commit" ]; then
             echo "Failed to read libcod_commit from libcod repo" >&2
             exit 1
-          fi
-
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            speex="${{ inputs.enable_speex }}"
-            unsafe="${{ inputs.enable_unsafe }}"
-          fi
-
-          if [ "$speex" = "true" ]; then
-            suffix="${suffix}-speex"
-          fi
-          if [ "$unsafe" = "true" ]; then
-            suffix="${suffix}-unsafe"
           fi
 
           tags="${image}:${version}${suffix}"
@@ -114,8 +92,6 @@ jobs:
 
           echo "push=${push}" >> "$GITHUB_OUTPUT"
           echo "tags=${tags}" >> "$GITHUB_OUTPUT"
-          echo "speex=${speex}" >> "$GITHUB_OUTPUT"
-          echo "unsafe=${unsafe}" >> "$GITHUB_OUTPUT"
           echo "libcod_commit=${libcod_commit}" >> "$GITHUB_OUTPUT"
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "image=${image}" >> "$GITHUB_OUTPUT"
@@ -160,8 +136,7 @@ jobs:
           build-args: |
             cod2_patch=${{ env.COD2_PATCH }}
             mysql_variant=${{ env.MYSQL_VARIANT }}
-            enable_speex=${{ steps.build_meta.outputs.speex }}
-            enable_unsafe=${{ steps.build_meta.outputs.unsafe }}
+            libcod_url=${{ env.LIBCOD_REPO_URL }}
             libcod_commit=${{ steps.build_meta.outputs.libcod_commit }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
