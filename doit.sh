@@ -41,6 +41,9 @@ for arg_name in "cod2_patch" "enable_speex" "mysql_variant" "enable_unsafe"; do
 done
 # End: [Custom] Get parameters
 
+# Fail the build immediately on any command error or unset variable usage.
+set -euo pipefail
+
 is_true() {
     [ "$1" = "true" ]
 }
